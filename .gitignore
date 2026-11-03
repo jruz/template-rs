@@ -1,0 +1,10 @@
+.direnv/
+/target/
+/tmp/*
+!/tmp/.gitkeep
+/node_modules/
+/PLAN.md
+result
+.intentionally-empty-file.o
+/github-settings-unknown-linux-musl-*
+/github-settings-apple-darwin-*
