@@ -5,7 +5,8 @@
 ## Architecture
 
 - `src/main.rs`: entrypoint.
-- `src/cli.rs`: argument parsing and version display.
+- `src/cli.rs`: argument parsing.
+- `src/version.rs`: version metadata from the release skill.
 - `build.rs`: Git revision and build timestamp with typed errors using `thiserror`.
 - `tests/cli.rs`: CLI integration tests.
 
