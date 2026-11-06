@@ -50,7 +50,7 @@ install:
         "$HOME/.cargo/bin"
 
 machete:
-    sandbox cargo machete --with-metadata
+    sandbox cargo machete
 
 outdated:
     sandbox cargo outdated
