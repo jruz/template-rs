@@ -1,0 +1,21 @@
+{
+  "version": "0.1.0",
+  "platforms": {
+    "x86_64-linux": {
+      "asset": "template-rust-unknown-linux-musl-x86_64",
+      "hash": "sha256-emlr/0L9o2j3z+IqcHJC8ib8NNGx5SCVgvbhvOTbihA="
+    },
+    "aarch64-linux": {
+      "asset": "template-rust-unknown-linux-musl-aarch64",
+      "hash": "sha256-3NRXmvtyc81oor8yMYR4wUz+23GDHwGi2fyEbcTfLFY="
+    },
+    "x86_64-darwin": {
+      "asset": "template-rust-apple-darwin-x86_64",
+      "hash": "sha256-67aw2NVCXIwPn51LsMfci8Bf9UJcA0IVN4z/dr7wHTU="
+    },
+    "aarch64-darwin": {
+      "asset": "template-rust-apple-darwin-aarch64",
+      "hash": "sha256-ovQPAYl1CXcBE4IdEzEmNXnq4Wxpa8e04t6qiq+pQCc="
+    }
+  }
+}
