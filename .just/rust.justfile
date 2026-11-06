@@ -1,5 +1,8 @@
 set working-directory := '..'
 
+musl-target := arch() + '-unknown-linux-musl'
+package-name := `nu --commands 'open Cargo.toml | get package.name'`
+
 build:
     sandbox cargo build --all-targets
 
@@ -38,7 +41,7 @@ install:
         --locked \
         --force \
         --profile fast \
-        --target {{arch()}}-unknown-linux-musl \
+        --target {{musl-target}} \
         --root target/dist
     install \
         --directory \
@@ -56,7 +59,8 @@ outdated:
     sandbox cargo outdated
 
 run *ARGS='':
-    sandbox cargo run -- {{ARGS}}
+    sandbox cargo build --target {{musl-target}}
+    target/docker/{{musl-target}}/debug/{{package-name}} {{ARGS}}
 
 test *FILTER='':
     sandbox cargo nextest run \
