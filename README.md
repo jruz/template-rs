@@ -1,20 +1,18 @@
-# github-settings
+# template-rust
 
-Scaffolding for a GitHub repository settings CLI.
+A minimal Rust CLI template using Clap.
 
 ## Development
 
-- `just rust::run` prints `Hello, world!`.
-- `just check` runs project checks.
-- `just run` runs the app.
-- `just check` runs linters.
-- `just test` runs tests.
-- `just install` installs the binary.
+- `just run`
+- `just check`
+- `just test`
+- `just install`
 
 ## Nix installation
 
-- `nix profile add github:jruz/github-settings` installs the latest release binary.
-- `nix profile add github:jruz/github-settings#source` builds from source.
+- `nix profile add github:jruz/template-rust` installs the latest release binary.
+- `nix profile add github:jruz/template-rust#source` builds from source.
 
 ## Licence
 

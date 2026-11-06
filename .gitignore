@@ -6,5 +6,5 @@
 /PLAN.md
 result
 .intentionally-empty-file.o
-/github-settings-unknown-linux-musl-*
-/github-settings-apple-darwin-*
+/*-unknown-linux-musl-*
+/*-apple-darwin-*

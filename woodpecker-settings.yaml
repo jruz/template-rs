@@ -1,5 +1,5 @@
 repo:
-  name: jruz/github-settings
+  name: jruz/template-rust
 secrets:
   GITHUB_TOKEN:
     events:

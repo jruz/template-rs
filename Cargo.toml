@@ -1,7 +1,13 @@
 [package]
-name = "github-settings"
+name = "template-rust"
 version = "0.1.0"
 edition = "2024"
+
+[dependencies]
+clap = { version = "=4.6.7", features = ["derive"] }
+
+[build-dependencies]
+thiserror = "=2.0.21"
 
 [lints.rust]
 future_incompatible = "forbid"
