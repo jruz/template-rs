@@ -1,4 +1,4 @@
-use log.nu
+use lib/log.nu
 
 const BUILD_IMAGE = 'docker.io/messense/cargo-zigbuild:0.23.4'
 const TARGETS = [
@@ -10,15 +10,7 @@ const TARGETS = [
 
 
 def select-targets [target: string]: nothing -> list<record> {
-    let selected = $TARGETS | where $target == all or $"($it.arch)-($it.os)" == $target
-    if ($selected | is-empty) {
-        let expected = $TARGETS
-            | each {|item| $"($item.arch)-($item.os)" }
-            | prepend all
-            | str join ', '
-        error make {msg: $"unknown release target: ($target)\nexpected: ($expected)"}
-    }
-    $selected
+    $TARGETS | where $target == all or $"($it.arch)-($it.os)" == $target
 }
 
 
@@ -41,11 +33,8 @@ def build-command [build: record]: nothing -> string {
 
 
 def project-cache-prefix []: nothing -> string {
-    let remote = (^git remote get-url origin | complete)
-    if $remote.exit_code != 0 {
-        error make {msg: ($remote.stderr | str trim)}
-    }
-    let name = $remote.stdout | str trim | path basename | str replace --regex '\.git$' ''
+    let remote = (^git remote get-url origin)
+    let name = $remote | str trim | path basename | str replace --regex '\.git$' ''
     $"($name)-release"
 }
 
@@ -55,15 +44,26 @@ def run-build [build: record]: nothing -> nothing {
     let cache_prefix = project-cache-prefix
     let image_key = $BUILD_IMAGE | hash sha256 | str substring 0..11
     let target_volume = $"($cache_prefix)-target-($build.toolchain)-($image_key)"
+    let uid = (^id --user | str trim)
+    let gid = (^id --group | str trim)
     (^podman run
         --rm
-        --volume $"(pwd):/workspace"
+        --userns keep-id
+        --user $"($uid):($gid)"
+        --read-only
+        --cap-drop ALL
+        --security-opt no-new-privileges
+        --tmpfs /tmp:exec
+        --tmpfs $env.HOME
+        --volume $"(pwd):/app"
         --volume $"($cache_prefix)-rustup:/usr/local/rustup:nocopy"
         --volume $"($cache_prefix)-registry:/usr/local/cargo/registry:nocopy"
         --volume $"($cache_prefix)-git:/usr/local/cargo/git:nocopy"
         --volume $"($target_volume):/build-cache:nocopy"
-        --workdir /workspace
+        --workdir /app
         --env REVISION
+        --env $"HOME=($env.HOME)"
+        --env TMPDIR=/tmp
         --env $"RUSTUP_TOOLCHAIN=($build.toolchain)"
         --env CARGO_TARGET_DIR=/build-cache
         --env XDG_CACHE_HOME=/build-cache/cache
@@ -72,90 +72,73 @@ def run-build [build: record]: nothing -> nothing {
 }
 
 
-def fail [label: string, stderr: string]: nothing -> error {
-    let trimmed = ($stderr | str trim)
-    let message = if ($trimmed | is-empty) {
-        $"($label) failed"
-    } else {
-        $"($label) failed: ($trimmed)"
-    }
-    error make {msg: $message}
-}
-
-
 def cargo-set-version [version: string]: nothing -> nothing {
-    let result = (^sandbox cargo set-version $version | complete)
-    if $result.exit_code != 0 {
-        fail "cargo set-version" $result.stderr
-    }
+    ^sandbox cargo set-version $version
 }
 
 
 def git-add-release-files []: nothing -> nothing {
-    let result = (^git add Cargo.toml Cargo.lock | complete)
-    if $result.exit_code != 0 {
-        fail "git add" $result.stderr
-    }
+    ^git add Cargo.toml Cargo.lock
 }
 
 
 def git-commit-version [version: string]: nothing -> nothing {
-    let result = (^git commit --message $"[tool] Version: Bump to ($version)" | complete)
-    if $result.exit_code != 0 {
-        fail "git commit" $result.stderr
-    }
+    ^git commit --message $"[tool] Version: Bump to ($version)"
 }
 
 
-def "main build" [target: string]: nothing -> nothing {
-    try {
-        let build = {
-            name: (open Cargo.toml | get package.name)
-            toolchain: (open rust-toolchain.toml | get toolchain.channel)
-            targets: (select-targets $target)
-        }
-        run-build $build
-        for target in $build.targets {
-            log ok $"($build.name)-($target.os)-($target.arch)"
-        }
-    } catch {|err|
-        print --stderr $"ERROR: ($err.msg)"
+# Cross-compile release binaries in a container
+def "main build" [
+    target: string # target triple such as x86_64-unknown-linux-musl, or all
+]: nothing -> nothing {
+    let build = {
+        name: (open Cargo.toml | get package.name)
+        toolchain: (open rust-toolchain.toml | get toolchain.channel)
+        targets: (select-targets $target)
+    }
+    if ($build.targets | is-empty) {
+        let expected = $TARGETS
+            | each {|item| $"($item.arch)-($item.os)" }
+            | prepend all
+            | str join ', '
+        log error $"unknown release target: ($target)\nexpected: ($expected)"
         exit 1
     }
+    run-build $build
+    for target in $build.targets {
+        log ok $"($build.name)-($target.os)-($target.arch)"
+    }
 }
 
 
-def "main bump" [version: string]: nothing -> nothing {
+# Set the crate version and commit the bump
+def "main bump" [
+    version: string # new version in 0.0.0 format
+]: nothing -> nothing {
     if ($version !~ '^\d+\.\d+\.\d+$') {
-        print --stderr $"ERROR: invalid version format: ($version) \(expected 0.0.0\)"
+        log error $"invalid version format: ($version) \(expected 0.0.0\)"
         exit 1
     }
 
-    try {
-        let current = (open Cargo.toml | get package.version)
-        cargo-set-version $version
-        git-add-release-files
-        git-commit-version $version
-        log ok $"Bumped ($current) -> ($version)"
-    } catch {|err|
-        print --stderr $"ERROR: ($err.msg)"
-        exit 1
-    }
+    let current = (open Cargo.toml | get package.version)
+    cargo-set-version $version
+    git-add-release-files
+    git-commit-version $version
+    log ok $"Bumped ($current) -> ($version)"
 }
 
 
-def "main upload" [tag: string]: nothing -> nothing {
-    try {
-        let release = (^gh release view $tag | complete)
-        if $release.exit_code != 0 {
-            ^gh release create $tag --title $tag --verify-tag
-        }
-        let artifacts = glob $"($env.CI_REPO_NAME)-*"
-        ^gh release upload $tag ...$artifacts --clobber
-    } catch {|err|
-        print --stderr $"ERROR: ($err.msg)"
-        exit 1
+# Create the GitHub release if missing and upload built binaries
+def "main upload" [
+    tag: string # release tag such as v0.1.0
+]: nothing -> nothing {
+    log info $"checking whether release ($tag) exists"
+    let releases = (^gh api --paginate 'repos/{owner}/{repo}/releases' --jq '.[].tag_name')
+    if $tag not-in ($releases | lines) {
+        ^gh release create $tag --title $tag --verify-tag
     }
+    let artifacts = glob $"($env.CI_REPO_NAME)-*"
+    ^gh release upload $tag ...$artifacts --clobber
 }
 
 
@@ -172,45 +155,38 @@ def release-platform [release: record, target: record]: nothing -> record {
 }
 
 
+# Write release.json from the latest GitHub release assets
 def "main flake-update" []: nothing -> nothing {
-    try {
-        let response = (^gh api 'repos/{owner}/{repo}/releases/latest' | complete)
-        if $response.exit_code != 0 {
-            fail 'latest release' $response.stderr
-        }
-        let published = ($response.stdout | from json)
-        let version = ($published.tag_name
-            | parse --regex '^v(?<version>\d+\.\d+\.\d+)$'
-            | first
-            | get version)
-        let release = {name: (open Cargo.toml | get package.name), assets: $published.assets}
-        let platforms = ($TARGETS
-            | each {|target| release-platform $release $target }
-            | reduce --fold {} {|item, result|
-                $result | insert $item.system $item.platform
-            })
-        {version: $version, platforms: $platforms}
-            | to json --indent 2
-            | $"($in)\n"
-            | save --force release.json
-        log ok $"flake release updated: ($published.tag_name)"
-    } catch {|err|
-        print --stderr $"ERROR: ($err.msg)"
-        exit 1
-    }
+    let response = (^gh api 'repos/{owner}/{repo}/releases/latest')
+    let published = ($response | from json)
+    let version = ($published.tag_name
+        | parse --regex '^v(?<version>\d+\.\d+\.\d+)$'
+        | first
+        | get version)
+    let release = {name: (open Cargo.toml | get package.name), assets: $published.assets}
+    let platforms = ($TARGETS
+        | each {|target| release-platform $release $target }
+        | each {|item| {$item.system: $item.platform} }
+        | into record)
+    {version: $version, platforms: $platforms}
+        | to json --indent 2
+        | $"($in)\n"
+        | save --force release.json
+    ^git add -- release.json
+    ^git commit --only --message $"[tool] Release: Update flake to ($version)" -- release.json
+    log ok $"flake release updated: ($published.tag_name)"
 }
 
 
-def "main delete" [tag: string]: nothing -> nothing {
-    try {
-        ^gh release delete $tag --cleanup-tag --yes
-    } catch {|err|
-        print --stderr $"ERROR: ($err.msg)"
-        exit 1
-    }
+# Delete a GitHub release and its tag
+def "main delete" [
+    tag: string # release tag such as v0.1.0
+]: nothing -> nothing {
+    ^gh release delete $tag --cleanup-tag --yes
 }
 
 
+# Build, publish, and manage project releases
 def main []: nothing -> string {
     help main
 }

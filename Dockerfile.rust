@@ -1,3 +1,4 @@
+# check=skip=InvalidDefaultArgInFrom
 ARG RUST_VERSION
 FROM rust:${RUST_VERSION}-slim-trixie
 
