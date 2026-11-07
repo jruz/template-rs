@@ -29,6 +29,7 @@
           rustc = rust;
         };
         cargoToml = fromTOML (builtins.readFile ./Cargo.toml);
+        rustVersion = (fromTOML (builtins.readFile ./rust-toolchain.toml)).toolchain.channel;
         projectName = cargoToml.package.name;
         revision = self.rev or "dirty";
         release = builtins.fromJSON (builtins.readFile ./release.json);
@@ -104,6 +105,14 @@
             unstable.woodpecker-cli
           ];
 
+          shellHook = ''
+            echo ""
+            echo "  Development Shell"
+            echo "  ─────────────────"
+            echo "  nixpkgs      ${pkgs.lib.trivial.release}"
+            echo "  rust         ${rustVersion} (docker)"
+            echo ""
+          '';
         };
       }
     );
