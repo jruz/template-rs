@@ -3,7 +3,7 @@ ARG RUST_VERSION
 FROM rust:${RUST_VERSION}-slim-trixie
 
 ARG TARGETARCH
-ARG CARGO_BINSTALL_VERSION=1.26.0
+ARG CARGO_BINSTALL_VERSION=1.26.1
 
 SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
 
