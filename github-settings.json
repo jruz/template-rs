@@ -1,5 +1,5 @@
 {
-  "repository": "jruz/template-rust",
+  "repository": "jruz/template-rs",
   "settings": {
     "description": "Rust CLI template with Clap, sandboxed builds, Nix flake and Woodpecker releases",
     "private": false,
@@ -16,20 +16,12 @@
     "is_template": true
   },
   "topics": {
-    "names": [
-      "cli",
-      "nix",
-      "rust",
-      "template",
-      "woodpecker"
-    ]
+    "names": ["cli", "nix", "rust", "template", "woodpecker"]
   },
   "branch_protection": {
     "required_status_checks": {
       "strict": true,
-      "contexts": [
-        "ci/woodpecker/pr/check"
-      ]
+      "contexts": ["ci/woodpecker/pr/check"]
     },
     "enforce_admins": false,
     "required_pull_request_reviews": null,

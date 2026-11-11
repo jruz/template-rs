@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     fn run(arguments: &[&str]) -> std::process::Output {
-        std::process::Command::new(env!("CARGO_BIN_EXE_template-rust"))
+        std::process::Command::new(env!("CARGO_BIN_EXE_template-rs"))
             .args(arguments)
             .output()
             .expect("run CLI")
@@ -12,7 +12,7 @@ mod tests {
         let output = run(&["--help"]);
         assert!(output.status.success());
         let help = String::from_utf8(output.stdout).expect("UTF-8 help");
-        assert!(help.contains("template-rust"));
+        assert!(help.contains("template-rs"));
         assert!(help.contains("--help"));
         assert!(help.contains("--version"));
         assert!(!help.contains("Commands:"));
@@ -24,7 +24,7 @@ mod tests {
             let output = run(&[argument]);
             assert!(output.status.success());
             let version = String::from_utf8(output.stdout).expect("UTF-8 version");
-            assert!(version.starts_with("template-rust \n"));
+            assert!(version.starts_with("template-rs \n"));
             assert!(version.contains(concat!("version: ", env!("CARGO_PKG_VERSION"))));
             assert!(version.contains(concat!("revision: ", env!("REVISION"))));
             assert!(version.contains(concat!("build-time: ", env!("BUILD_TIME"))));

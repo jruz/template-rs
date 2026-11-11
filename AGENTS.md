@@ -1,6 +1,6 @@
 # Agent instructions
 
-`template-rust` is a minimal Rust CLI template using Clap.
+`template-rs` is a minimal Rust CLI template using Clap.
 
 ## Architecture
 
