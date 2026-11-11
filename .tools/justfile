@@ -1,0 +1,94 @@
+set working-directory := '..'
+
+check:
+    just --justfile .tools/justfile just-fmt-check
+    just --justfile .tools/justfile nix-check
+    just --justfile .tools/justfile nushell-check
+    just --justfile .tools/justfile woodpecker-check
+    just --justfile .tools/justfile renovate-check
+    just --justfile .tools/justfile json-check
+    just --justfile .tools/justfile toml-check
+
+fix:
+    just --justfile .tools/justfile just-fmt-fix
+    just --justfile .tools/justfile nix-fix
+    just --justfile .tools/justfile nushell-fix
+    just --justfile .tools/justfile json-fix
+    just --justfile .tools/justfile toml-fix
+
+just-fmt-check:
+    just \
+        --justfile .tools/justfile \
+        --unstable \
+        --fmt \
+        --check
+
+just-fmt-fix:
+    just \
+        --justfile .tools/justfile \
+        --unstable \
+        --fmt
+
+nix-check:
+    fd \
+        --hidden \
+        --extension nix \
+        --exec nixfmt --check
+    statix check .
+    deadnix --fail .
+
+nix-fix:
+    fd \
+        --hidden \
+        --extension nix \
+        --exec nixfmt
+    statix fix .
+    deadnix --edit .
+
+nushell-check:
+    fd \
+        --hidden \
+        --absolute-path \
+        --extension nu \
+        --exec nu --no-config-file \
+        --commands 'if not (nu-check --debug "{}") { exit 1 }'
+    nu-lint --config .tools/nu-lint.toml .
+
+nushell-fix:
+    nu-lint --config .tools/nu-lint.toml --fix .
+
+woodpecker-check:
+    woodpecker-cli lint .woodpecker/*.yml
+
+renovate-check:
+    renovate-config-validator --strict renovate.json
+
+json-check:
+    fd \
+        --hidden \
+        --extension json \
+        --extension jsonc \
+        --exec-batch oxfmt --check
+
+json-fix:
+    fd \
+        --hidden \
+        --extension json \
+        --extension jsonc \
+        --exec-batch oxfmt --write
+
+toml-check:
+    fd \
+        --hidden \
+        --extension toml \
+        --exec-batch taplo format --check
+    fd \
+        --hidden \
+        --extension toml \
+        --exec-batch taplo lint
+
+toml-fix:
+    fd \
+        --hidden \
+        --extension toml \
+        --exec-batch taplo format

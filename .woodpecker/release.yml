@@ -7,7 +7,7 @@ steps:
     environment:
       REVISION: ${CI_COMMIT_SHA}
     commands:
-      - nix develop --command just release build all
+      - nix develop --command just release::run build all
 
   - name: RELEASE
     image: bash
@@ -16,7 +16,7 @@ steps:
         from_secret: GITHUB_TOKEN
     commands:
       - ls -la ${CI_REPO_NAME}-*
-      - nix develop --command just release upload ${CI_COMMIT_TAG}
+      - nix develop --command just release::run upload ${CI_COMMIT_TAG}
 
   - name: FLAKE_UPDATE
     image: bash
@@ -27,6 +27,6 @@ steps:
       - nix develop --command gh auth setup-git --hostname github.com
       - nix develop --command git config --local user.name 'Woodpecker Bot'
       - nix develop --command git config --local user.email 'bot@jruz.io'
-      - nix develop --command just release flake-update
+      - nix develop --command just release::run flake-update
       - nix develop --command git pull --rebase origin main
       - nix develop --command git push https://github.com/${CI_REPO}.git HEAD:main

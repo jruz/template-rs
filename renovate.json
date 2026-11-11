@@ -15,18 +15,14 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["/^Dockerfile\\.rust$/"],
-      "matchStrings": [
-        "[ \\t](?<depName>[a-z][a-z0-9-]*)@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
-      ],
+      "matchStrings": ["[ \\t](?<depName>[a-z][a-z0-9-]*)@(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
       "datasourceTemplate": "crate",
       "versioningTemplate": "semver"
     },
     {
       "customType": "regex",
       "managerFilePatterns": ["/^Dockerfile\\.rust$/"],
-      "matchStrings": [
-        "ARG CARGO_BINSTALL_VERSION=(?<currentValue>\\d+\\.\\d+\\.\\d+)"
-      ],
+      "matchStrings": ["ARG CARGO_BINSTALL_VERSION=(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
       "depNameTemplate": "cargo-bins/cargo-binstall",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^v(?<version>.*)$",
@@ -35,9 +31,7 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["/^Dockerfile\\.rust$/"],
-      "matchStrings": [
-        "'(?<depName>[a-z][a-z0-9+.-]*)=(?<currentValue>[^'\\s]+)'"
-      ],
+      "matchStrings": ["'(?<depName>[a-z][a-z0-9+.-]*)=(?<currentValue>[^'\\s]+)'"],
       "datasourceTemplate": "deb",
       "versioningTemplate": "deb"
     },

@@ -1,0 +1,22 @@
+{
+  "copy": [
+    ".cargo/config.toml",
+    ".envrc",
+    ".githooks/",
+    ".just/just.justfile",
+    ".just/release.justfile",
+    ".just/rust.justfile",
+    ".woodpecker/",
+    "Dockerfile.rust",
+    "LICENSE",
+    "build.rs",
+    "renovate.json",
+    "rust-toolchain.toml",
+    "scripts/",
+    "src/commands/version.rs",
+    "src/utils/output.rs"
+  ],
+  "merge": [{ "keys": ["build-dependencies", "lints"], "path": "Cargo.toml" }],
+  "review": ["flake.nix", "justfile"],
+  "section": [".gitignore"]
+}

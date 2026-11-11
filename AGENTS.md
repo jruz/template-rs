@@ -30,8 +30,16 @@
 - Run Cargo commands through `sandbox`.
 - Run `just check`, `just test`, and `slop-detector` after changes.
 
+## Template maintenance
+
+- `.tools/` contains template-only configuration validators.
+- Run `nix develop ./.tools --command just --justfile .tools/justfile check` after configuration changes.
+- Run `nix develop ./.tools --command just --justfile .tools/justfile fix` to format configuration.
+- Delete `.tools/` and this section in generated projects.
+- `template.json` excludes these tools from downstream syncs.
+
 ## Release
 
-- `just release bump <version>` updates Cargo manifests and commits the version bump.
+- `just release::run bump <version>` updates Cargo manifests and commits the version bump.
 - Push the bump to `main`; CI handles tagging and publishing.
-- `just release delete <tag>` deletes a published release and its tag.
+- `just release::run delete <tag>` deletes a published release and its tag.

@@ -1,7 +1,6 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-26.05";
-    nixpkgs-unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -13,7 +12,6 @@
     {
       self,
       nixpkgs,
-      nixpkgs-unstable,
       flake-utils,
       rust-overlay,
       ...
@@ -34,7 +32,6 @@
         revision = self.rev or "dirty";
         release = builtins.fromJSON (builtins.readFile ./release.json);
         platform = release.platforms.${system};
-        unstable = import nixpkgs-unstable { inherit system; };
         sandbox = pkgs.writeShellScriptBin "sandbox" ''
           export PATH=${
             pkgs.lib.makeBinPath [
@@ -90,19 +87,13 @@
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            deadnix
-            fd
             gh
             git
             just
-            nixfmt
-            nu-lint
             nushell
             podman
             ripgrep
             sandbox
-            statix
-            unstable.woodpecker-cli
           ];
 
           shellHook = ''

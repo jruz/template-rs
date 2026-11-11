@@ -8,3 +8,5 @@ result
 .intentionally-empty-file.o
 /*-unknown-linux-musl-*
 /*-apple-darwin-*
+
+# this project
