@@ -3,6 +3,9 @@ set working-directory := '..'
 musl-target := arch() + '-unknown-linux-musl'
 package-name := `nu --commands 'open Cargo.toml | get package.name'`
 
+architecture-check:
+    nu scripts/architecture-check.nu src
+
 build:
     sandbox cargo build --all-targets
 
@@ -14,6 +17,7 @@ check:
     just rust::fmt-check
     just rust::clippy-check
     just rust::machete
+    just rust::architecture-check
 
 clippy-check *ARGS='':
     sandbox cargo clippy --all-targets {{ARGS}}

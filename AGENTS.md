@@ -22,6 +22,7 @@
 - `core` calls `libs` and `utils`.
 - `libs` calls `utils`.
 - `utils` calls nothing.
+- `just rust::architecture-check` enforces these rules with `scripts/architecture-check.nu`.
 
 ## Development
 
