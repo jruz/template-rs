@@ -223,7 +223,7 @@ def config-errors []: record -> list<string> {
         | items {|key, value|
             let actual = ($value | describe)
             let expected = ($CONFIG_TYPES | get --optional $key)
-            let empty_list = ($actual == "list<any>" and ($value | is-empty))
+            let empty_list = ($expected == "list<string>" and $actual == "list<any>" and ($value | is-empty))
             if $actual != $expected and not $empty_list {
                 [$"sandbox.json: ($key) must be ($expected), got ($actual)"]
             } else {
