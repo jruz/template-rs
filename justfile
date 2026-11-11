@@ -1,6 +1,7 @@
 mod rust '.just/rust.justfile'
 mod release '.just/release.justfile'
 mod just '.just/just.justfile'
+mod git '.just/git.justfile'
 
 check:
     just just::fmt-check
@@ -11,7 +12,7 @@ fix:
     just rust::fix
 
 setup:
-    just git-hooks
+    just git::hooks-setup
 
 install:
     just rust::install
@@ -21,6 +22,3 @@ test:
 
 run *ARGS='':
     just rust::run {{ ARGS }}
-
-git-hooks:
-    git config --local core.hooksPath .githooks

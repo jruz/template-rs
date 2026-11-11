@@ -3,6 +3,7 @@
     ".cargo/config.toml",
     ".envrc",
     ".githooks/",
+    ".just/git.justfile",
     ".just/just.justfile",
     ".just/release.justfile",
     ".just/rust.justfile",
