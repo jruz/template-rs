@@ -1,6 +1,6 @@
 use lib/log.nu
 
-const BUILD_IMAGE = 'docker.io/messense/cargo-zigbuild:0.24.0'
+const BUILD_IMAGE = 'docker.io/messense/cargo-zigbuild:0.24.1'
 const TARGETS = [
     {os: unknown-linux-musl, arch: x86_64}
     {os: unknown-linux-musl, arch: aarch64}
