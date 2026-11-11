@@ -4,11 +4,24 @@
 
 ## Architecture
 
-- `src/main.rs`: entrypoint.
-- `src/cli.rs`: argument parsing.
-- `src/version.rs`: version metadata from the release skill.
+- `src/main.rs`: entrypoint, argument parsing, and command dispatch.
+- `src/commands/`: one thin module per command.
+- `src/core/`: business logic.
+- `src/libs/`: self-contained units that could be extracted into their own crate.
+- `src/utils/`: small generic helpers.
+- `src/commands/version.rs`: version metadata from the release skill.
 - `build.rs`: Git revision and build timestamp with typed errors using `thiserror`.
-- `tests/cli.rs`: CLI integration tests.
+- `tests/main.rs`: integration test entrypoint.
+- `tests/commands/`: tests that run the binary, one file per command.
+- `tests/utils/`: shared test helpers.
+
+## Layers
+
+- `main.rs` calls `commands` and `utils`.
+- `commands` calls `core` and `utils`.
+- `core` calls `libs` and `utils`.
+- `libs` calls `utils`.
+- `utils` calls nothing.
 
 ## Development
 
