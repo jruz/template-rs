@@ -15,3 +15,9 @@
 - Use `justfile` and `.just/` recipes for development tasks.
 - Run Cargo commands through `sandbox`.
 - Run `just check`, `just test`, and `slop-detector` after changes.
+
+## Release
+
+- `just release bump <version>` updates Cargo manifests and commits the version bump.
+- Push the bump to `main`; CI handles tagging and publishing.
+- `just release delete <tag>` deletes a published release and its tag.
