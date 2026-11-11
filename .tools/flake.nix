@@ -20,19 +20,36 @@
       in
       {
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; [
-            deadnix
-            fd
-            just
-            nixfmt
-            nu-lint
-            nushell
-            oxfmt
-            renovate
-            statix
-            taplo
-            unstable.woodpecker-cli
-          ];
+          packages =
+            (with pkgs; [
+              deadnix
+              fd
+              just
+              nixfmt
+              nu-lint
+              nushell
+              oxfmt
+              renovate
+              statix
+              taplo
+              unstable.woodpecker-cli
+            ])
+            ++
+              map
+                (
+                  name:
+                  pkgs.writeShellApplication {
+                    inherit name;
+                    runtimeInputs = [ pkgs.just ];
+                    text = ''
+                      exec just --justfile .tools/justfile ${name} "$@"
+                    '';
+                  }
+                )
+                [
+                  "check"
+                  "fix"
+                ];
         };
       }
     );

@@ -33,8 +33,8 @@
 ## Template maintenance
 
 - `.tools/` contains template-only configuration validators.
-- Run `nix develop ./.tools --command just --justfile .tools/justfile check` after configuration changes.
-- Run `nix develop ./.tools --command just --justfile .tools/justfile fix` to format configuration.
+- Run `nix develop ./.tools --command check` after configuration changes.
+- Run `nix develop ./.tools --command fix` to format configuration.
 - Delete `.tools/` and this section in generated projects.
 - `template.json` excludes these tools from downstream syncs.
 
