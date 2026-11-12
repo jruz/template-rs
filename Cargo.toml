@@ -59,7 +59,7 @@ print_stdout = "allow"
 struct_excessive_bools = "allow"
 tests_outside_test_module = "allow"
 
-# this project
+# project entries below, everything above is managed by template-sync
 
 [profile.release]
 codegen-units = 1
