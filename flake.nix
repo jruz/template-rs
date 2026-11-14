@@ -87,10 +87,12 @@
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
+            fd
             gh
             git
             just
             nushell
+            oxfmt
             podman
             ripgrep
             sandbox

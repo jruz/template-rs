@@ -11,6 +11,7 @@
     ".envrc",
     ".githooks/",
     ".just/",
+    ".oxfmtrc.json",
     ".tools/",
     ".woodpecker/",
     "Dockerfile.rust",

@@ -1,43 +1,14 @@
 set working-directory := '..'
 
 check:
-    just --justfile .tools/justfile just-fmt-check
     just --justfile .tools/justfile nix-check
     just --justfile .tools/justfile nushell-check
     just --justfile .tools/justfile woodpecker-check
     just --justfile .tools/justfile renovate-check
-    just --justfile .tools/justfile oxfmt-check
-    just --justfile .tools/justfile toml-check
 
 fix:
-    just --justfile .tools/justfile just-fmt-fix
     just --justfile .tools/justfile nix-fix
     just --justfile .tools/justfile nushell-fix
-    just --justfile .tools/justfile oxfmt-fix
-    just --justfile .tools/justfile toml-fix
-
-just-fmt-check:
-    fd \
-        --hidden \
-        --exclude tests/fixtures \
-        --type file \
-        --glob '*justfile' \
-        --exec just \
-        --justfile {} \
-        --unstable \
-        --fmt \
-        --check
-
-just-fmt-fix:
-    fd \
-        --hidden \
-        --exclude tests/fixtures \
-        --type file \
-        --glob '*justfile' \
-        --exec just \
-        --justfile {} \
-        --unstable \
-        --fmt
 
 nix-check:
     fd \
@@ -85,28 +56,3 @@ woodpecker-check:
 
 renovate-check:
     renovate-config-validator --strict renovate.json
-
-oxfmt-check:
-    oxfmt --check . '!tests/fixtures/**' '!**/*.toml'
-
-oxfmt-fix:
-    oxfmt --write . '!tests/fixtures/**' '!**/*.toml'
-
-toml-check:
-    fd \
-        --hidden \
-        --exclude tests/fixtures \
-        --extension toml \
-        --exec-batch taplo format --check
-    fd \
-        --hidden \
-        --exclude tests/fixtures \
-        --extension toml \
-        --exec-batch taplo lint
-
-toml-fix:
-    fd \
-        --hidden \
-        --exclude tests/fixtures \
-        --extension toml \
-        --exec-batch taplo format
