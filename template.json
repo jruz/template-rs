@@ -1,5 +1,5 @@
 {
-  "merge": [".gitignore", "github-settings.json", "Cargo.toml"],
+  "merge": [".gitignore", "github-settings.json", "Cargo.toml", "woodpecker-settings.yaml"],
   "replace": [
     ".cargo/config.toml",
     ".envrc",
