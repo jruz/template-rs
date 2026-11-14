@@ -1,6 +1,7 @@
 {
   "merge": [
     { "path": ".gitignore" },
+    { "path": "github-settings.json" },
     { "keys": ["build-dependencies", "lints"], "path": "Cargo.toml" }
   ],
   "replace": [
