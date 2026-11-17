@@ -1,13 +1,17 @@
 set working-directory := '..'
 
-musl-target := arch() + '-unknown-linux-musl'
 package-name := `nu --commands 'open Cargo.toml | get package.name'`
+host-os := if os() == 'macos' { 'apple-darwin' } else { 'unknown-linux-musl' }
+host-binary := 'target/dist/' + package-name + '-' + host-os + '-' + arch()
 
 architecture-check:
     nu scripts/architecture-check.nu src
 
-build:
-    sandbox cargo build --all-targets
+build TARGET PROFILE:
+    nu scripts/build.nu {{ TARGET }} {{ PROFILE }}
+
+build-host:
+    just rust::build {{ arch() }}-{{ host-os }} fast
 
 cargo-check:
     sandbox cargo check --all-targets
@@ -40,21 +44,15 @@ fmt-fix:
     sandbox cargo fmt --all
 
 install:
-    sandbox cargo install \
-        --path . \
-        --locked \
-        --force \
-        --profile fast \
-        --target {{ musl-target }} \
-        --root target/dist
+    just rust::build-host
     install \
         --directory \
         --mode=755 \
         "$HOME/.cargo/bin"
     install \
         --mode=755 \
-        target/dist/bin/* \
-        "$HOME/.cargo/bin"
+        {{ host-binary }} \
+        "$HOME/.cargo/bin/{{ package-name }}"
 
 machete:
     sandbox cargo machete
@@ -63,8 +61,8 @@ outdated:
     sandbox cargo outdated
 
 run *ARGS='':
-    sandbox cargo build --target {{ musl-target }}
-    target/docker/{{ musl-target }}/debug/{{ package-name }} {{ ARGS }}
+    just rust::build-host
+    {{ host-binary }} {{ ARGS }}
 
 test *FILTER='':
     sandbox cargo nextest run \
