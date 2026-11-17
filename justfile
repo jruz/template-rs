@@ -1,5 +1,4 @@
 mod rust '.just/rust.justfile'
-mod release '.just/release.justfile'
 mod just '.just/just.justfile'
 mod oxfmt '.just/oxfmt.justfile'
 mod git '.just/git.justfile'
@@ -26,3 +25,7 @@ test:
 
 run *ARGS='':
     just rust::run {{ ARGS }}
+
+[positional-arguments]
+release +ARGS:
+    nu scripts/release.nu "$@"

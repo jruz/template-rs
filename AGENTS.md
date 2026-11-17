@@ -39,6 +39,6 @@
 
 ## Release
 
-- `just release::run bump <version>` updates Cargo manifests and commits the version bump.
+- `just release bump <version>` updates Cargo manifests and commits the version bump.
 - Push the bump to `main`; CI handles tagging and publishing.
-- `just release::run delete <tag>` deletes a published release and its tag.
+- `just release delete <tag>` deletes a published release and its tag.

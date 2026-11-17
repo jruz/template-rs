@@ -155,8 +155,8 @@ def release-platform [release: record, target: record]: nothing -> record {
 }
 
 
-# Write release.json from the latest GitHub release assets
-def "main flake-update" []: nothing -> nothing {
+# Generate release.json from the latest GitHub release assets without committing
+def "main manifest-generate" []: nothing -> nothing {
     let response = (^gh api 'repos/{owner}/{repo}/releases/latest')
     let published = ($response | from json)
     let version = ($published.tag_name
@@ -172,9 +172,17 @@ def "main flake-update" []: nothing -> nothing {
         | to json --indent 2
         | $"($in)\n"
         | save --force release.json
+    log ok $"release manifest generated: ($published.tag_name)"
+}
+
+
+# Generate and commit release.json from the latest GitHub release assets
+def "main flake-update" []: nothing -> nothing {
+    main manifest-generate
+    let version = (open release.json | get version)
     ^git add -- release.json
     ^git commit --only --message $"[tool] Release: Update flake to ($version)" -- release.json
-    log ok $"flake release updated: ($published.tag_name)"
+    log ok $"flake release updated: v($version)"
 }
 
 
