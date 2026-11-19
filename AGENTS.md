@@ -39,7 +39,7 @@
 
 ## Release
 
-- `just release start <version> <owner/repo>` starts a Woodpecker release from `main`.
-- Start the same version again to resume a draft after an interrupted publication.
+- `just release bump <patch|minor|major>` starts a Woodpecker release using the Cargo version on `origin/main`.
+- Retry the same Woodpecker run to resume an interrupted publication without bumping the version again.
 - `just release delete <tag>` deletes a published release and its tag.
 - `nu tests/release/release.test.nu` runs the release workflow regression tests.

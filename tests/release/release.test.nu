@@ -12,14 +12,15 @@ const VERSION = '0.2.0'
 
 
 def main []: nothing -> nothing {
-    test-start-triggers-manual-pipeline
+    test-bump-triggers-manual-pipeline
+    test-bump-rejects-invalid-kind
     test-manifest-generate
     test-release-rebuilds-once-if-main-advances
     test-release-stops-if-main-advances-twice
     test-release-does-not-retry-unrelated-push-errors
     test-release-does-not-push-if-upload-fails
     test-release-resumes-after-push-without-rebuilding
-    print '7 release regression tests passed'
+    print '8 release regression tests passed'
 }
 
 
@@ -107,9 +108,8 @@ def write-mocks [bin: path]: nothing -> nothing {
     ' | save $nix
     let woodpecker = ($bin | path join woodpecker-cli)
     '#!/usr/bin/env nu
-        use std/assert
         def --wrapped main [...args: string] {
-            assert equal $args [pipeline create --branch main --var RELEASE_VERSION=0.2.0 owner/repo]
+            print ($args | to nuon)
         }
     ' | save $woodpecker
     ^chmod +x ($bin | path join gh) $sandbox $nix $woodpecker
@@ -149,11 +149,43 @@ def writes [f: record]: nothing -> list<list<string>> {
 }
 
 
-def test-start-triggers-manual-pipeline []: nothing -> nothing {
+def test-bump-triggers-manual-pipeline []: nothing -> nothing {
+    let cwd = $env.PWD
     let f = fixture
-    let result = (invoke $f [start $VERSION 'owner/repo'])
-    assert equal $result.exit_code 0 $result.stderr
-    assert equal (remote-head $f.remote) $f.base
+    cd $f.repo
+    open --raw Cargo.toml | str replace '0.1.0' '1.2.3' | save --force Cargo.toml
+    ^git commit --quiet --message 'Advance version on main' -- Cargo.toml
+    push-fixture
+    let remote_head = (remote-head $f.remote)
+    ^git switch --quiet --detach $f.base
+    ^git update-ref refs/remotes/origin/main $f.base
+
+    let cases = [[kind version url];
+        [patch '1.2.4' 'git@github.com:fixture-owner/fixture-repo.git']
+        [minor '1.3.0' 'https://github.com/fixture-owner/fixture-repo']
+        [major '2.0.0' 'ssh://git@github.com/fixture-owner/fixture-repo.git']
+    ]
+    for case in $cases {
+        ^git remote set-url origin $case.url
+        ^git config --add $"url.file://($f.remote).insteadOf" $case.url
+        let result = (invoke $f [bump $case.kind])
+        assert equal $result.exit_code 0 $result.stderr
+        let version_arg = $"RELEASE_VERSION=($case.version)"
+        assert equal ($result.stdout | from nuon) [pipeline create --branch main --var $version_arg fixture-owner/fixture-repo]
+    }
+    assert equal (^git rev-parse HEAD | str trim) $f.base
+    assert equal (open Cargo.toml | get package.version) '0.1.0'
+    assert equal (remote-head $f.remote) $remote_head
+    cd $cwd
+    rm --permanent --recursive $f.root
+}
+
+
+def test-bump-rejects-invalid-kind []: nothing -> nothing {
+    let f = fixture
+    let result = (invoke $f [bump typo])
+    assert equal $result.exit_code 1
+    assert str contains $result.stderr 'Expected patch, minor, or major'
     rm --permanent --recursive $f.root
 }
 

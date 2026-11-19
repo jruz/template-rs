@@ -12,15 +12,42 @@ def valid-version [version: string]: nothing -> bool {
 }
 
 
-# Start a release pipeline on main
-def "main start" [
-    version: string # requested version in 0.0.0 format
-    repo: string # Woodpecker repository in owner/repo format
+def bumped-version [version: string, bump: string]: nothing -> string {
+    let parts = ($version | split row '.' | each {|part| $part | into int })
+    match $bump {
+        major => $"($parts.0 + 1).0.0"
+        minor => $"($parts.0).($parts.1 + 1).0"
+        patch => $"($parts.0).($parts.1).($parts.2 + 1)"
+    }
+}
+
+
+# Bump the version on origin/main and start a Woodpecker release
+def "main bump" [
+    kind: string # SemVer bump: patch, minor, or major
 ]: nothing -> nothing {
-    if not (valid-version $version) {
-        log error $"Invalid version ($version); expected 0.0.0"
+    if $kind not-in [patch minor major] {
+        log error 'Expected patch, minor, or major'
         exit 1
     }
+    let origin = (^git config --get remote.origin.url | str trim)
+    let repos = ($origin
+        | str replace --regex '\.git/?$' ''
+        | parse --regex '^(?:https://github\.com/|ssh://git@github\.com/|git@github\.com:)(?<repo>[\w.-]+/[\w.-]+)/?$')
+    if ($repos | is-empty) {
+        log error 'Expected origin to point to a GitHub repository'
+        exit 1
+    }
+    let repo = ($repos | first | get repo)
+    ^git fetch --no-tags origin main
+    let manifest = (^git show FETCH_HEAD:Cargo.toml)
+    let current = ($manifest | from toml | get package.version)
+    if not (valid-version $current) {
+        log error $"Invalid version ($current) on origin/main; expected 0.0.0"
+        exit 1
+    }
+    let version = (bumped-version $current $kind)
+    log info $"Starting release ($version) for ($repo)"
     ^woodpecker-cli pipeline create --branch main --var $"RELEASE_VERSION=($version)" $repo
 }
 
