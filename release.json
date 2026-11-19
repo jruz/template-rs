@@ -1,21 +1,21 @@
 {
-  "version": "0.0.2",
+  "version": "0.0.3",
   "platforms": {
     "x86_64-linux": {
       "asset": "template-rs-unknown-linux-musl-x86_64",
-      "hash": "sha256-RBiK0xmpX9gePYMK31YaInHspZraPywAXFpMlZHDhgA="
+      "hash": "sha256-W/t0Cl9zVcx7zSXsxhlkYnhFgaY5Ghtvrb3WIeTqe0w="
     },
     "aarch64-linux": {
       "asset": "template-rs-unknown-linux-musl-aarch64",
-      "hash": "sha256-nWN8y0iXfas28dIDc/OKSdmGM/s5UGTCUkXBV9bStiU="
+      "hash": "sha256-L8DF4PPmYyU/paEPNNbExX53D63erJN0xjzMd2kN8dM="
     },
     "x86_64-darwin": {
       "asset": "template-rs-apple-darwin-x86_64",
-      "hash": "sha256-Rs0h/TDKwtnfHk7/BUP3hKAHXq7tTqn1ZlqlxMmQDYY="
+      "hash": "sha256-Fn2SnVTdZIC8KHHBSP+yFJYpGsFf/SnlybHW3UymPtY="
     },
     "aarch64-darwin": {
       "asset": "template-rs-apple-darwin-aarch64",
-      "hash": "sha256-Y8eiA1U62u4LFKFVYzcT6hO2BPHSVuCqEAMBq92SG4M="
+      "hash": "sha256-cH+3p7bJ7Ps5csILlQy9uletsIhYJBN4PpHO4dh+JzM="
     }
   }
 }
