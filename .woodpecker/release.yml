@@ -1,9 +1,4 @@
-depends_on:
-  - check
-
 when:
-  - event: push
-    branch: main
   - event: manual
     branch: main
 
@@ -11,11 +6,10 @@ steps:
   - name: PUBLISH
     image: bash
     environment:
-      REVISION: ${CI_COMMIT_SHA}
       GITHUB_TOKEN:
         from_secret: GITHUB_TOKEN
     commands:
-      - nix develop --command gh auth setup-git --hostname github.com
-      - nix develop --command git config --local user.name 'Woodpecker Bot'
-      - nix develop --command git config --local user.email 'bot@jruz.io'
-      - nix develop --command just release publish
+      - nix develop --no-update-lock-file --command gh auth setup-git --hostname github.com
+      - nix develop --no-update-lock-file --command git config --local user.name 'Woodpecker Bot'
+      - nix develop --no-update-lock-file --command git config --local user.email 'bot@jruz.io'
+      - nix develop --no-update-lock-file --command just release publish "$RELEASE_VERSION"

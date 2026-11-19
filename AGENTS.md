@@ -39,6 +39,6 @@
 
 ## Release
 
-- `just release bump <version>` updates Cargo manifests and commits the version bump.
-- Push the bump to `main`; CI handles tagging and publishing.
+- `just release start <version> <owner/repo>` starts a Woodpecker release from `main`.
+- Start the same version again to resume a draft after an interrupted publication.
 - `just release delete <tag>` deletes a published release and its tag.
