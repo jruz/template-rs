@@ -28,14 +28,15 @@
 
 - Use `justfile` and `.just/` recipes for development tasks.
 - Run Cargo commands through `sandbox`.
-- Run `just check`, `just test`, and `slop-detector` after changes.
+- `just check` verifies formatting and lint rules.
+- `just test` runs the test suite.
+- Run `slop-detector` after changes.
 
 ## Configuration tools
 
-- Run `just tools::check` after configuration changes.
-- Run `just tools::fix` to format configuration.
+- `just tools::check` validates configuration separately from CI.
+- `just tools::fix` formats configuration.
 - `.tools/` provides its own Nix shell through `.just/tools.justfile`.
-- Keep these checks separate from `just check` and CI.
 
 ## Release
 
