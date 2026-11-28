@@ -17,6 +17,7 @@
     "Dockerfile.rust",
     "LICENSE",
     "build.rs",
+    "flake.lock",
     "flake.nix",
     "renovate.json",
     "rust-toolchain.toml",
